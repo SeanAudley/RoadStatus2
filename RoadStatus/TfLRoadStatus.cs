@@ -41,25 +41,17 @@ namespace RoadStatus
             else
             {
 
-                //retrieve config settings
-                string url = ConfigurationManager.AppSettings["url"];
-                string app_id = ConfigurationManager.AppSettings["app_id"];
-                string app_key = ConfigurationManager.AppSettings["app_key"];
                 
                 //create the client
-                var client = new RestClient(url);
+                var client =  MakeClient();
 
                 //create the request
-                var request = new RestRequest("Road/{id}");
-                
-                //add params and header
-                request.AddParameter("app_id", app_id);
-                request.AddParameter("app_key", app_key);
-                request.AddUrlSegment("id", route);
+                var request = MakeRequest();
+
 
                 // execute 
                 var response = client.Get(request);
-                
+
                 if (response.IsSuccessful)
                 {
                     // convert the JSON data
@@ -76,7 +68,33 @@ namespace RoadStatus
 
             }
 
+
         }
 
+        private IRestClient MakeClient()
+        {
+            var url = ConfigurationManager.AppSettings["url"];
+            var client = new RestClient(url);
+
+            return client;
+        }
+
+        private IRestRequest MakeRequest()
+        {
+            //retrieve config settings
+            string app_id = ConfigurationManager.AppSettings["app_id"];
+            string app_key = ConfigurationManager.AppSettings["app_key"];
+
+            var Request = new RestRequest("Road/{id}", Method.GET);
+
+            //add params and header
+            Request.AddParameter("app_id", app_id);
+            Request.AddParameter("app_key", app_key);
+            Request.AddUrlSegment("id", route);
+
+            return Request;
+
+        }
     }
+
 }
